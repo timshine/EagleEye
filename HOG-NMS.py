@@ -122,7 +122,7 @@ def non_max_suppression_fast(boxes, overlapThresh):
 
 def main():
     read_video_stream()
-    os.kill(os.getppid(), signal.SIGHUP)  # closes terminal when script ends (yah yeet)
+    os.kill(os.getppid(), signal.SIGHUP)  # closes terminal when script ends 
 
 if __name__ == "__main__":
     main()
