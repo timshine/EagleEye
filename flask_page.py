@@ -2,6 +2,8 @@
 video. It will also offer button for user control"""
 
 # Import necessary packages to open flask page
+import os
+from HOG_NMS import generate
 from flask import Response
 from flask import Flask
 from flask import render_template
@@ -12,10 +14,6 @@ import imutils
 import time
 import cv2
 
-# Thread safe exchanges between output frames (multiple browsers)
-outputFrame = None
-lock = threading.Lock()
-
 # Begin flask object
 app = Flask(__name__)
 
@@ -24,6 +22,15 @@ app = Flask(__name__)
 def webpage():
     # Return the template
     return render_template("webpage.html")
+
+app.run(debug=True)
+
+@app.route("/video")
+def video_feed():
+	# return the response generated along with the specific media
+	# type (mime type)
+	return Response(generate(),
+		mimetype = "multipart/x-mixed-replace; boundary=frame")
 
 def screen_words():
     return 'Home Screen'

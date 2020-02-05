@@ -1,16 +1,22 @@
 # https://www.pyimagesearch.com/2015/11/09/pedestrian-detection-opencv/
 # https://www.pyimagesearch.com/2015/02/16/faster-non-maximum-suppression-python/
 # import the necessary packages
+
 from imutils.object_detection import non_max_suppression
 from imutils import paths
 import numpy as np
 import argparse
 import imutils
+import threading
 import cv2
 import os
 import signal
 
+outputFrame = None
+lock = threading.Lock()
+
 def read_video_stream(): 
+    global outputFrame, lock
     # initialize the HOG descriptor/person detector
     hog = cv2.HOGDescriptor()
     hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
@@ -51,17 +57,31 @@ def read_video_stream():
         # cv2.imshow("After NMS", image)
         # cv2.waitKey(0)
 
+        #aquire lock, set the output frame
+        with lock:
+            outputFrame = frame.copy()
+
         # Display the resulting frame
         cv2.imshow('Eye Sight (original)',orig)
         cv2.imshow('Eye Sight',frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-        
+            break 
+
     # When everything done, release the capture
     capture.release()
     # finally, close the window
     cv2.destroyAllWindows()
     cv2.waitKey(1)
+
+def generate():
+    """Used to generate active video feed to be captured by flask"""
+    global outputFrame, lock
+    while True:
+        #Testing for Flask
+        with lock: 
+            if outputFrame is None:
+                continue
+        yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +	bytearray(outputFrame) + b'\r\n')
 
 # Malisiewicz et al.
 def non_max_suppression_fast(boxes, overlapThresh):
@@ -122,7 +142,7 @@ def non_max_suppression_fast(boxes, overlapThresh):
 
 def main():
     read_video_stream()
-    os.kill(os.getppid(), signal.SIGHUP)  # closes terminal when script ends 
+    #os.kill(os.getppid(), signal.SIGHUP)  # closes terminal when script ends 
 
 if __name__ == "__main__":
     main()
