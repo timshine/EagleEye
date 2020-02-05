@@ -20,8 +20,7 @@ lock = threading.Lock()
 app = Flask(__name__)
 
 
-
-@app.route("/VideoStream")               # At the endpoint /VideoStream
+@app.route("/video_feed")               # At the endpoint /video_feed
 def webpage():
     # Return the template
     return render_template("webpage.html")
