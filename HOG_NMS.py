@@ -11,9 +11,13 @@ import threading
 import cv2
 import os
 import signal
+import time
+
 
 outputFrame = None
 lock = threading.Lock()
+
+time.sleep(2.0)
 
 def read_video_stream(): 
     global outputFrame, lock
@@ -31,41 +35,40 @@ def read_video_stream():
         ret, frame = capture.read()
         # load the image and resize it to (1) reduce detection time
         # and (2) improve detection accuracy
-        frame = imutils.resize(frame, width=min(1080, frame.shape[1]))
-        orig = frame.copy()
+        if ret == True:
+            frame = imutils.resize(frame, width=min(1080, frame.shape[1]))
+            orig = frame.copy()
     
-        # detect people in the image
-        (rects, weights) = hog.detectMultiScale(frame, winStride=(12, 12),padding=(14, 14), scale=1.05)
+            # detect people in the image
+            (rects, weights) = hog.detectMultiScale(frame, winStride=(12, 12),padding=(14, 14), scale=1.05)
 
-        # draw the original bounding boxes
-        for (x, y, w, h) in rects:
-            cv2.rectangle(orig, (x, y), (x + w, y + h), (0, 0, 255), 2)
+            # draw the original bounding boxes
+            for (x, y, w, h) in rects:
+                cv2.rectangle(orig, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
-        # apply non-maxima suppression to the bounding boxes using a
-        # fairly large overlap threshold to try to maintain overlapping
-        # boxes that are still people
-        rects = np.array([[x, y, x + w, y + h] for (x, y, w, h) in rects])
-        # Good: pick = non_max_suppression(rects, probs=None, overlapThresh=0.65)
-        pick = non_max_suppression_fast(rects, 0.75)
+            # apply non-maxima suppression to the bounding boxes using a
+            # fairly large overlap threshold to try to maintain overlapping
+            # boxes that are still people
+            rects = np.array([[x, y, x + w, y + h] for (x, y, w, h) in rects])
+            # Good: pick = non_max_suppression(rects, probs=None, overlapThresh=0.65)
+            pick = non_max_suppression_fast(rects, 0.75)
 
-        # draw the final bounding boxes
-        for (xA, yA, xB, yB) in pick:
-            cv2.rectangle(frame, (xA, yA), (xB, yB), (255, 255, 255), 2)
+            # draw the final bounding boxes
+            for (xA, yA, xB, yB) in pick:
+                cv2.rectangle(frame, (xA, yA), (xB, yB), (255, 255, 255), 2)
 
-        # # show the output images
-        # cv2.imshow("Before NMS", orig)
-        # cv2.imshow("After NMS", image)
-        # cv2.waitKey(0)
+            #aquire lock, set the output frame
+            with lock:
+                outputFrame = frame.copy()
+                (flag, encodedImage) = cv2.imencode(".jpg", outputFrame)
 
-        #aquire lock, set the output frame
-        with lock:
-            outputFrame = frame.copy()
+            # Display the resulting frame
+            # cv2.imshow('Eye Sight (original)',orig)
+            # cv2.imshow('Eye Sight',frame)
+            # if cv2.waitKey(1) & 0xFF == ord('q'):
+            #     break 
 
-        # Display the resulting frame
-        cv2.imshow('Eye Sight (original)',orig)
-        cv2.imshow('Eye Sight',frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break 
+        yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +	bytearray(encodedImage) + b'\r\n')
 
     # When everything done, release the capture
     capture.release()
@@ -73,15 +76,6 @@ def read_video_stream():
     cv2.destroyAllWindows()
     cv2.waitKey(1)
 
-def generate():
-    """Used to generate active video feed to be captured by flask"""
-    global outputFrame, lock
-    while True:
-        #Testing for Flask
-        with lock: 
-            if outputFrame is None:
-                continue
-        yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +	bytearray(outputFrame) + b'\r\n')
 
 # Malisiewicz et al.
 def non_max_suppression_fast(boxes, overlapThresh):
@@ -140,9 +134,9 @@ def non_max_suppression_fast(boxes, overlapThresh):
 	# integer data type
 	return boxes[pick].astype("int")
 
-def main():
-    read_video_stream()
+# def main():
+    #read_video_stream
     #os.kill(os.getppid(), signal.SIGHUP)  # closes terminal when script ends 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

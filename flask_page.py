@@ -3,11 +3,9 @@ video. It will also offer button for user control"""
 
 # Import necessary packages to open flask page
 import os
-from HOG_NMS import generate
-from flask import Response
-from flask import Flask
-from flask import render_template
-import threading
+from HOG_NMS import read_video_stream
+from flask import Response, Flask, render_template
+from threading import Thread
 import argparse
 import datetime
 import imutils
@@ -18,22 +16,21 @@ import cv2
 app = Flask(__name__)
 
 
-@app.route("/video_feed")               # At the endpoint /video_feed
+@app.route("/")               
 def webpage():
     # Return the template
-    return render_template("webpage.html")
+    return render_template("index.html")
 
-app.run(debug=True)
-
-@app.route("/video")
+@app.route("/video_feed")
 def video_feed():
 	# return the response generated along with the specific media
 	# type (mime type)
-	return Response(generate(),
+    return Response(read_video_stream(),
 		mimetype = "multipart/x-mixed-replace; boundary=frame")
 
-def screen_words():
-    return 'Home Screen'
-
 if __name__=='__main__':
-    app.run(host='0.0.0.0', debug=True)
+    # start a thread that will perform motion detection
+    # t1 = Thread(target = read_video_stream)
+    # t1.start()
+    # start flask app
+    app.run(host='0.0.0.0', debug=True, threaded=True)
