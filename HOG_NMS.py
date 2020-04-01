@@ -28,7 +28,8 @@ def read_video_stream():
     cv2.startWindowThread()
 
     # open webcam video stream
-    capture = cv2.VideoCapture(0)
+    #capture = cv2.VideoCapture(0)
+
 
     while(True):
         # Capture frame-by-frame
