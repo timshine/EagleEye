@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset ="utf-8" />
+        <title>Live Stream Video</title>
+        <link rel="shortcut icon" href="{{ url_for('static', filename='eagle.ico') }}">
+        <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet'>
+        <link rel="stylesheet" type = "text/css" href="{{url_for('static', filename='styles/styles.css') }}">
+    </head>
+    <body>
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="left-side">
+                    <div class="nav-link-wrapper">
+                        <a href="index.html">Home</a>
+                    </div>
+                    <div class="nav-link-wrapper">
+                        <a href="live_stream_video.html active-nav-link">Live Stream Video</a>
+                    </div>
+                    <div class="nav-link-wrapper">
+                        <a href="about.html">About Us</a>
+                    </div>
+                </div>
+
+                <div class="right-side">
+                    <div class="brand">
+                        <div>EAGLE EYE</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-wrapper">
+                <div class="two-column-wrapper">
+                    <div class="profile-image-wrapper">
+                        <img src="{{ url_for('video_feed') }}">
+                    </div>
+                    <div class="profile-content-wrapper">
+                        <h1>Live Stream Video</h1>
+                        <p>Mis-identified target button</p>
+                        <p>Return to base button</p>
+                    </div>
+                </div>
+
+        </div>
+    </body>
+</html>

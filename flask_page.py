@@ -16,11 +16,27 @@ import cv2
 app = Flask(__name__)
 
 
-@app.route("/")               
-def webpage():
+@app.route("/live_stream_video.html")               
+def video():
+    # Return the template
+    return render_template("live_stream_video.html")
+
+@app.route("/about.html")               
+def about():
+    # Return the template
+    return render_template("about.html")
+
+@app.route("/index.html")               
+def home():
     # Return the template
     return render_template("index.html")
 
+@app.route("/")               
+def original():
+    # Return the template
+    return render_template("index.html")
+
+# Used to send video stream from NMS to live_stream_video.html
 @app.route("/video_feed")
 def video_feed():
 	# return the response generated along with the specific media
