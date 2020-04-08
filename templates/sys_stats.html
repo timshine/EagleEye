@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset ="utf-8" />
+        <title>Live Stream Video</title>
+        <link rel="shortcut icon" href="{{ url_for('static', filename='eagle.ico') }}">
+        <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet'>
+        <link rel="stylesheet" type = "text/css" href="{{url_for('static', filename='styles/styles.css') }}">
+    </head>
+    <body>
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="left-side">
+                    <div class="nav-link-wrapper">
+                        <a href="index.html">Home</a>
+                    </div>
+                    <div class="nav-link-wrapper">
+                        <a href="live_stream_video.html">Live Stream Video</a>
+                    </div>
+                    <div class="nav-link-wrapper active-nav-link">
+                        <a href="sys_stats.html">Base Station Status</a>
+                    </div>
+                    <div class="nav-link-wrapper">
+                        <a href="about.html">About Us</a>
+                    </div>
+                    <div class="nav-link-wrapper">
+                        <a href="l3harris.html">About the Sponsor</a>
+                    </div>
+                </div>
+
+                <div class="right-side">
+                    <div class="brand">
+                        <div>EAGLE EYE</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-content-wrapper">
+                <h1>Base Station Status</h1>
+                <form action="/sys_stats.html" method="post">
+                    <button name="updateButton" type="submit">Update Status</button>
+                </form>
+                <p>{{forward_message}}</p>
+                <div class="two-column-wrapper">
+                    <table class="content-table">
+                        <caption><b><font size = 4>System Information</font></b></caption>
+                        <thead>
+                            <tr>
+                                <th>Attribute</th>
+                                <th>Current Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for key, value in sys_info.items() %}
+                                <tr>
+                                    <td>{{key}}</td>
+                                    <td>{{value}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <table class="content-table">
+                        <caption><b><font size = 4>CPU Information</font></b></caption>
+                        <thead>
+                            <tr>
+                                <th>Attribute</th>
+                                <th>Current Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for key, value in cpu_info.items() %}
+                                <tr>
+                                    <td>{{key}}</td>
+                                    <td>{{value}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <table class="content-table">
+                        <caption><b><font size = 4>Memory Information</font></b></caption>
+                        <thead>
+                            <tr>
+                                <th>Attribute</th>
+                                <th>Current Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for key, value in memory_info.items() %}
+                                <tr>
+                                    <td>{{key}}</td>
+                                    <td>{{value}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <table class="content-table">
+                        <caption><b><font size = 4>Boot Information</font></b></caption>
+                        <thead>
+                            <tr>
+                                <th>Attribute</th>
+                                <th>Current Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Last Boot Time</td>
+                                <td>{{ boot_time }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    
+                </div>
+            </div>
+        </div>
+    </body>
+           
+</html>
+        
