@@ -17,11 +17,6 @@ import sys_information
 app = Flask(__name__)
 
 
-# @app.route("/live_stream_video.html")               
-# def video():
-#     # Return the template
-#     return render_template("live_stream_video.html")
-
 @app.route("/live_stream_video.html", methods=['POST', 'GET'])               
 def buttonClickOnVideo():
     # Return the template
@@ -85,4 +80,4 @@ if __name__=='__main__':
     # t1 = Thread(target = read_video_stream)
     # t1.start()
     # start flask app
-    app.run(host='0.0.0.0', debug=False, threaded=True)
+    app.run(host='0.0.0.0', debug=True, threaded=True)
