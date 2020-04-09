@@ -27,6 +27,7 @@
 * Download [imutils](https://pypi.org/project/imutils/) package from pip. This is used to detecting edges and contours when using OpenCV
 * Download [numpy](https://pypi.org/project/numpy/) package from pip
 * Download [Flask](https://pypi.org/project/Flask/) package from pip
+* Download [psutil](https://pypi.org/project/psutil/) package from pip
 
 ## Running the program
 * Attach an external camera to the usb port of the computer. If this is being done on a laptop, the webcam will be the default camera. 
