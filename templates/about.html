@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset ="utf-8" />
+        <title>About the Team</title>
+        <link rel="shortcut icon" href="{{ url_for('static', filename='eagle.ico') }}">
+        <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet'>
+        <link rel="stylesheet" type = "text/css" href="{{url_for('static', filename='styles/styles.css') }}">
+    </head>
+    <body>
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="left-side">
+                    <div class="nav-link-wrapper">
+                        <a href="index.html">Home</a>
+                    </div>
+                    <div class="nav-link-wrapper">
+                        <a href="live_stream_video.html">Live Stream Video</a>
+                    </div>
+                    <div class="nav-link-wrapper">
+                        <a href="sys_stats.html">Base Station Status</a>
+                    </div>
+                    <div class="nav-link-wrapper active-nav-link">
+                        <a href="about.html">About Us</a>
+                    </div>
+                    <div class="nav-link-wrapper">
+                        <a href="l3harris.html">About the Sponsor</a>
+                    </div>
+                </div>
+
+                <div class="right-side">
+                    <div class="brand">
+                        <div>EAGLE EYE</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-wrapper">
+                <div class="two-column-wrapper">
+                    <div class="profile-image-wrapper">
+                        <img src="{{url_for('static', filename='styles/eagle_eye_team.png') }}">
+                    </div>
+                    <div class="profile-content-wrapper">
+                        <h1>Team Members</h1>
+                        <h5>From front left to back right:</h5>
+                        <div class="profile-team-wrapper">
+                            <h4>Timothy Shine</h4>
+                            <div class="profile-degree-wrapper">
+                                <p><b>B.E.</b> Mechanical Engineering</p>
+                                <p><b>M.E.</b> Engineering Management</p>
+                                <p><b>Graduate Certificates:</b> Data Visualization, Software Engineering</p>
+                            </div>
+                            <h4>Nicholas DiMaria</h4>
+                            <div class="profile-degree-wrapper">
+                                <p><b>B.E.</b> Computer Engineering</p>
+                                <p><b>Concentrations:</b> Embedded Systems, Machine Learning</p>
+                            </div>
+                            <h4>Gina Dello Russo</h4>
+                            <div class="profile-degree-wrapper">
+                                <p><b>B.E.</b> Mechanical Engineering</p>
+                                <p><b>M.E.</b> Engineering Management</p>
+                                <p><b>Concentrations:</b> Mechatronics, Data Science</p>
+                            </div>
+                            <h4>Vincent Russo</h4>
+                            <div class="profile-degree-wrapper">
+                                <p><b>B.E.</b> Mechanical Engineering</p>
+                                <p><b>Concentration:</b> Medical Devices</p>
+                            </div>
+                            <h4>Michael Alecci</h4>
+                            <div class="profile-degree-wrapper">
+                                <p><b>B.E.</b> Mechanical Engineering</p>
+                                <p><b>M.E.</b> Engineering Management</p>
+                                <p><b>Graduate Certificates:</b> Space Systems, Software Engineering</p>
+                            </div>
+                            <h4>Daniel Kaba</h4>
+                            <div class="profile-degree-wrapper">
+                                <p><b>B.E.</b> Mechanical Engineering</p>
+                                <p><b>Concentrations:</b> Aerospace Engineering</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </body>
+</html>

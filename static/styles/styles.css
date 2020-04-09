@@ -1,0 +1,265 @@
+/* Master Style */
+body{
+    font-family: "Lato", sans-serif;
+    margin: 0px;
+}
+
+.container{
+    display: grid;
+    grid-template-columns: 1fr;
+}
+
+/* Nav Styles */
+.nav-wrapper{
+    display: flex;
+    justify-content: space-between;
+    padding: 38px
+}
+.left-side{
+    display: flex;
+}
+
+.nav-wrapper > .left-side > div{
+    margin-right: 20px;
+    font-size: 0.9em;
+    text-transform: uppercase;
+}
+
+.nav-wrapper > .right-side > div{
+    margin-right: 20px;
+    font-size: 1em;
+    text-transform: uppercase;
+}
+
+.nav-link-wrapper{
+    height: 22px;
+    border-bottom: 1px solid transparent;
+    transition: border-bottom 0.5s;
+}
+
+.nav-link-wrapper a{
+    color: #8a8a8a;
+    text-decoration: none;
+    transition: color 0.5s;
+}
+
+.portfolio-item-wrapper a{
+    text-decoration: none;
+}
+
+.nav-link-wrapper:hover{
+    border-bottom: 1px solid black;
+}
+
+.nav-link-wrapper a:hover{
+    color: black;
+}
+
+.active-nav-link{
+    border-bottom: 1px solid black
+}
+
+.active-nav-link a {
+    color: black !important;
+}
+
+/* Portfolio Styles */
+.portfolio-items-wrapper{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.portfolio-item-wrapper{
+    position: relative;
+}
+
+.portfolio-img-background{
+    height: 400px;
+    width: 100%; 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.image-text-wrapper{
+    position: absolute;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+    padding-left: 150px;
+    padding-right: 150px;
+}
+
+.logo-wrapper img{
+    width:35%;
+    margin-bottom: 20px;
+}
+
+
+.image-text-wrapper .subtitle{
+    transition: 1s;
+    color: transparent;
+    font-weight: 600;
+}
+
+.image-text-wrapper:hover .subtitle{
+    font-weight: 600;
+    color: white;
+}
+
+.img-darken{
+    transition: 1s;
+    filter: brightness(10%);
+}
+
+
+/* About page styles */
+.profile-content-wrapper {
+    padding:10px;
+}
+
+.two-column-wrapper{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.profile-image-wrapper img{
+    width:100%;
+    padding: 5px;
+}
+
+.profile-content-wrapper{
+    text-align: center;
+    justify-content: center;
+}
+
+.profile-content-wrapper h1{
+    font-weight: 600;
+    margin: 14px;
+    margin-top: 4px;
+} 
+
+.profile-content-wrapper h5{
+    font-weight: 600;
+    margin: 10px;
+} 
+
+.profile-team-wrapper{
+    line-height: 14px;
+}
+
+.profile-team-wrapper h4{
+    margin: 8px;
+}
+
+.profile-degree-wrapper p{
+    font-size: 0.7em;
+    color: #5a5a5a;
+}
+
+/* System Status */
+
+.table-content-wrapper{
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.content-table{
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    min-width: 300px;
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
+    justify-content: center;
+    text-align: center;
+    border-radius: 5px 5px 0 0;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0,0,0,0.15)
+}
+.content-table thead tr{
+    background-color: #666666;
+    color: #ffffff;
+    text-align: center;
+    font-weight: bold;
+}
+
+.content-table th, .content-table td{
+    padding: 12px 15px;
+    text-align: center;
+}
+
+.content-table tbody tr{
+    border-bottom: 1pxx solid #dddddd
+}
+
+.content-table tbody tr:nth-of-type(even){
+    background-color:#f3f3f3
+}
+
+.content-table tbody tr:last-of-type{
+    border-bottom:2px solid #666666
+}
+
+/* Video stream */
+.video-content-wrapper{
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
+    justify-content: center;
+    text-align: center;
+}
+
+/* L3 Harris */
+.l3harris-image-wrapper{
+    padding: 0;
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+}
+
+.l3-website-wrapper{
+    justify-content: center;
+    text-align: center;
+    border-bottom: 1px solid transparent;
+}
+
+.l3-website-wrapper a{
+    color: #8a8a8a;
+    text-decoration: none;
+    transition: color 0.5s;
+}
+
+
+.l3-website-wrapper a:hover{
+    color: black;
+}
+
+/* Button Properties */
+
+.pushButton{
+    border: none;
+    background: #404040;
+    color: #ffffff !important;
+    font-weight: 75;
+    padding: 15px;
+    text-transform: uppercase;
+    border-radius: 6px;
+    display: inline-block;
+    transition: all 0.3s ease 0s;
+}
+
+.pushButton:hover{
+    color: #404040 !important;
+    font-weight: 700 !important;
+    letter-spacing: 3px;
+    background: #dddddd;
+    transition: all 0.3s ease 0s;
+}

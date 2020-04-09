@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset ="utf-8" />
+        <title>Live Stream Video</title>
+        <link rel="shortcut icon" href="{{ url_for('static', filename='eagle.ico') }}">
+        <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet'>
+        <link rel="stylesheet" type = "text/css" href="{{url_for('static', filename='styles/styles.css') }}">
+    </head>
+    <body>
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="left-side">
+                    <div class="nav-link-wrapper">
+                        <a href="index.html">Home</a>
+                    </div>
+                    <div class="nav-link-wrapper active-nav-link">
+                        <a href="live_stream_video.html">Live Stream Video</a>
+                    </div>
+                    <div class="nav-link-wrapper">
+                        <a href="sys_stats.html">Base Station Status</a>
+                    </div>
+                    <div class="nav-link-wrapper">
+                        <a href="about.html">About Us</a>
+                    </div>
+                    <div class="nav-link-wrapper">
+                        <a href="l3harris.html">About the Sponsor</a>
+                    </div>
+                </div>
+
+                <div class="right-side">
+                    <div class="brand">
+                        <div>EAGLE EYE</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-wrapper">
+                <div class="two-column-wrapper">
+                    <div class="profile-image-wrapper">
+                        <img src="{{ url_for('video_feed') }}">
+                    </div>
+                    <div class="video-content-wrapper">
+                        <h1>Live Stream Video</h1>
+                        <form action="/live_stream_video.html" method="post">
+                            <button name="videoButton" class=pushButton value="target" type="submit">Mis-Identified Target</button>
+                        </form>
+                        <br></br>
+                        <form action="/live_stream_video.html" method="post">
+                            <button name="videoButton" class=pushButton value="home" type="submit">Return to Base</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
