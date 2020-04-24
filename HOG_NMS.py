@@ -24,7 +24,8 @@ def read_video_stream():
     # initialize the HOG descriptor/person detector
     hog = cv2.HOGDescriptor()
     hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
-
+    #hog.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
+    #hog.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
     cv2.startWindowThread()
 
     # open webcam video stream
@@ -134,9 +135,9 @@ def non_max_suppression_fast(boxes, overlapThresh):
 	# integer data type
 	return boxes[pick].astype("int")
 
-# def main():
+ # def main():
     #read_video_stream
     #os.kill(os.getppid(), signal.SIGHUP)  # closes terminal when script ends 
 
-# if __name__ == "__main__":
-#     main()
+ # if __name__ == "__main__":
+ #     main()
