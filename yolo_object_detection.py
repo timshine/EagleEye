@@ -4,35 +4,37 @@
 
 # import the necessary packages
 from imutils.video import FPS
+from imutils.video import VideoStream
+from GoProStream import gopro_live
+from flask import Response, Flask, render_template, request, url_for, flash
 import numpy as np
 import argparse
 import threading
+from threading import Thread
 import cv2
 import os
-
-# construct the argument parse and parse the arguments
-#ap = argparse.ArgumentParser()
-#ap.add_argument("-i", "--input", type=str, default="",
-#	help="path to (optional) input video file")
-#ap.add_argument("-o", "--output", type=str, default="",
-#	help="path to (optional) output video file")
-#ap.add_argument("-d", "--display", type=int, default=1,
-#	help="whether or not output frame should be displayed")
-#ap.add_argument("-y", "--yolo", required=False,
-#	help="base path to YOLO directory")
-#ap.add_argument("-c", "--confidence", type=float, default=0.5,
-#	help="minimum probability to filter weak detections")
-#ap.add_argument("-t", "--threshold", type=float, default=0.3,
-#	help="threshold when applyong non-maxima suppression")
-#ap.add_argument("-u", "--use-gpu", type=bool, default=0,
-#	help="boolean indicating if CUDA GPU should be used")
-#args = vars(ap.parse_args())
+import time
+from queue import Queue
+from urllib.request import urlopen
 
 outputFrame = None
 lock = threading.Lock()
 
-def yolo_stream():
-	global outputFrame, lock
+app = Flask(__name__)
+urlopen("http://10.5.5.9/gp/gpControl/execute?p1=gpStream&a1=proto_v2&c1=restart").read()
+time.sleep(2.0)
+
+vs  = VideoStream('udp://10.5.5.100:8554').start()
+time.sleep(2.0)
+
+@app.route("/")
+def original():
+    # Return the template
+    return render_template("index.html")
+
+def yolo_stream(outputFrame, lock):
+	global vs
+    #, outputFrame, lock
 	# load the COCO class labels our YOLO model was trained on
 	labelsPath = os.path.sep.join(["yolo-coco", "coco.names"])
 	LABELS = open(labelsPath).read().strip().split("\n")
@@ -65,23 +67,11 @@ def yolo_stream():
 	W = None
 	H = None
 
-	# initialize the video stream and pointer to output video file, then
-	# start the FPS timer
 	print("[INFO] accessing video stream...")
-	#vs = cv2.VideoCapture(args["input"] if args["input"] else 0)
-	vs = cv2.VideoCapture(0)
-	writer = None
-	fps = FPS().start()
 
 	# loop over frames from the video file stream
 	while True:
-		# read the next frame from the file
-		(grabbed, frame) = vs.read()
-
-		# if the frame was not grabbed, then we have reached the end
-		# of the stream
-		if not grabbed:
-			break
+		frame = vs.read()
 
 		# if the frame dimensions are empty, grab them
 		if W is None or H is None:
@@ -152,40 +142,86 @@ def yolo_stream():
 					confidences[i])
 				cv2.putText(frame, text, (x, y - 5),
 					cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-
-		# check to see if the output frame should be displayed to our
-		# screen
-		#if  1 > 0:
-			#show the output frame
-			#cv2.imshow("Frame", frame)
-			#key = cv2.waitKey(1) & 0xFF
 		with lock:
 			outputFrame = frame.copy()
+
+def generate(outputFrame, lock):
+	#global outputFrame, lock
+
+	while True:
+		with lock:
+			if outputFrame is None:
+				continue
+
+			# encode the frame in JPEG format
 			(flag, encodedImage) = cv2.imencode(".jpg", outputFrame)
+
+			# ensure the frame was successfully encoded
+			if not flag:
+				continue
+
 
 		yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +	bytearray(encodedImage) + b'\r\n')
 
-			# if the `q` key was pressed, break from the loop
-		#	if key == ord("q"):
-		#		break
+# Used to send video stream from NMS to live_stream_video.html
+@app.route("/video_feed")
+def video_feed():
+    # return the response generated along with the specific media
+    # type (mime type)
+    return Response(generate(),
+        mimetype = "multipart/x-mixed-replace; boundary=frame")
 
-		# if an output video file path has been supplied and the video
-		# writer has not been initialized, do so now
-		#if args["output"] != "" and writer is None:
-			# initialize our video writer
-		#	fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-		#	writer = cv2.VideoWriter(args["output"], fourcc, 30,
-		#		(frame.shape[1], frame.shape[0]), True)
+@app.route("/live_stream_video.html", methods=['POST', 'GET'])
+def buttonClickOnVideo():
+    # Return the template
+    if request.method == 'POST':
+        if request.form['videoButton'] == 'target':
+            output = "Mis-identified"
+        elif request.form['videoButton'] == 'home':
+            output = "Return Home"
+        print(output)
+    return render_template("live_stream_video.html")
 
-		# if the video writer is not None, write the frame to the output
-		# video file
-		#if writer is not None:
-		#	writer.write(frame)
+@app.route("/about.html")
+def about():
+    # Return the template
+    return render_template("about.html")
 
-		# update the FPS counter
-		#fps.update()
+@app.route("/index.html")
+def home():
+    # Return the template
+    return render_template("index.html")
 
-	# stop the timer and display FPS information
-	#fps.stop()
-	#print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-	#print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+@app.route("/l3harris.html")
+def l3harris():
+    # Return the template
+    return render_template("l3harris.html")
+
+@app.route("/sys_stats.html")
+def sys_stats():
+    # Return the template
+    sys_info = sys_information.get_sys_info()
+    cpu_info = sys_information.get_cpu_cores()
+    boot_time = sys_information.get_boot_time()
+    memory_info = sys_information.get_memory_info()
+    return render_template("sys_stats.html", sys_info=sys_info, cpu_info=cpu_info, boot_time = boot_time, memory_info=memory_info)
+
+@app.route("/sys_stats.html", methods=['POST'])
+def update_stats():
+    #updating stats
+    sys_info = sys_information.get_sys_info()
+    cpu_info = sys_information.get_cpu_cores()
+    boot_time = sys_information.get_boot_time()
+    memory_info = sys_information.get_memory_info()
+    return render_template('sys_stats.html', sys_info=sys_info, cpu_info=cpu_info, boot_time=boot_time, memory_info=memory_info)
+
+if __name__=='__main__':
+    # start a thread that will perform motion detection
+    t = Thread(target=yolo_stream)
+    t.daemon = True
+    t.start()
+
+    # start flask app
+    app.run(host='0.0.0.0', port='8000', debug=True, threaded=True, use_reloader=False)
+
+vs.stop()
