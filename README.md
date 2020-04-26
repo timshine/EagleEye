@@ -1,5 +1,5 @@
 # EagleEye Drone Surveillance System
-## Central Base Station Specs for Running OpenCV
+## Central Base Station Specs for Running OpenCV with CUDA support
 ### Current Configuration
 * AMD Ryzen 5 2600 Processor
 * GeForce GTX 1660 oc 6G Graphics Card, 6GB 192-bit GDDR5
