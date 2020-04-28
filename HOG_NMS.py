@@ -4,6 +4,7 @@
 
 from imutils.object_detection import non_max_suppression
 from imutils import paths
+from color_detection import detect_red
 import numpy as np
 import argparse
 import imutils
@@ -51,11 +52,16 @@ def read_video_stream():
             # boxes that are still people
             rects = np.array([[x, y, x + w, y + h] for (x, y, w, h) in rects])
             # Good: pick = non_max_suppression(rects, probs=None, overlapThresh=0.65)
-            pick = non_max_suppression_fast(rects, 0.75)
+            pick = non_max_suppression_fast(rects, 0.65)
 
             # draw the final bounding boxes
             for (xA, yA, xB, yB) in pick:
-                cv2.rectangle(frame, (xA, yA), (xB, yB), (255, 255, 255), 2)
+                im = frame[yA:yB,xA:xB]
+                #print((xA, yA, xB, yB))
+                if detect_red(im, .1):
+                    cv2.rectangle(frame, (xA, yA), (xB, yB), (0, 0, 255), 2)
+                else:
+                    cv2.rectangle(frame, (xA, yA), (xB, yB), (0, 0, 0), 2)
 
             #aquire lock, set the output frame
             with lock:
