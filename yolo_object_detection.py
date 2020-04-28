@@ -18,7 +18,7 @@ from queue import Queue
 from urllib.request import urlopen
 
 ap = argparse.ArgumentParser()
-ap.add_argument("-g", "--use-gopro", type=bool, default=0,
+ap.add_argument("-g", "--use-gopro", type=int, default=0,
 	help="boolean indicating if GoPro should be used")
 ap.add_argument("-u", "--use-gpu", type=bool, default=0,
 	help="boolean indicating if CUDA GPU should be used")
@@ -29,14 +29,21 @@ lock = threading.Lock()
 
 app = Flask(__name__)
 
-if args["use_gopro"]:
+if args["use_gopro"] == 0:
+    #just getting video from webcam
+    vs = VideoStream(src=0).start()
+    time.sleep(2.0)
+elif args["use_gopro"] == 1:
+    #using stream from gopro
     print("[INFO] Trying to use stream from GoPro")
     urlopen("http://10.5.5.9/gp/gpControl/execute?p1=gpStream&a1=proto_v2&c1=restart").read()
     time.sleep(2.0)
     vs = VideoStream('udp://10.5.5.100:8554').start()
 else:
-    vs = VideoStream(src=0).start()
-    time.sleep(2.0)
+    #using steam from DJI
+    #mike add your code here
+    print("[INFO] Trying to use stream from DJI")
+
 
 @app.route("/")
 def original():
@@ -146,11 +153,13 @@ def yolo_stream():
 				(w, h) = (boxes[i][2], boxes[i][3])
 
 				# draw a bounding box rectangle and label on the frame
-				color = [int(c) for c in COLORS[classIDs[i]]]
-				cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
-				text = "{}: {:.4f}".format(LABELS[classIDs[i]],
-					confidences[i])
-				cv2.putText(frame, text, (x, y - 5),
+				if LABELS[classIDs[i]]=="person":
+					color = [int(c) for c in COLORS[classIDs[i]]]
+					cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
+				
+					text = "{}: {:.4f}".format(LABELS[classIDs[i]],
+						confidences[i])
+					cv2.putText(frame, text, (x, y - 5),
 					cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 		with lock:
 			outputFrame = frame.copy()
