@@ -15,7 +15,7 @@
 * Download Ubuntu 18.04 LTS Operating System onto PC
 * Download [Python 3](https://www.python.org/downloads/) and [set the default configuration](https://unix.stackexchange.com/questions/410579/change-the-python3-default-version-in-ubuntu) to the most recent Python 3 that is downloaded 
 * Download [VSCode](https://code.visualstudio.com/download) and download Python backage in extensions. Extensions is the last tab on the right side of the IDE. 
-* Download [Nvidia Drivers] (https://askubuntu.com/questions/1077061/how-do-i-install-nvidia-and-cuda-drivers-into-ubuntu) and make sure that CUDA and the Nvidia Drivers are added to your bin. Follow these instructions exactly!
+* Download [Nvidia Drivers](https://askubuntu.com/questions/1077061/how-do-i-install-nvidia-and-cuda-drivers-into-ubuntu) and make sure that CUDA and the Nvidia Drivers are added to your bin. **Follow these instructions exactly!**
 
 ### Downloading Libraries
 * All pip commands can be downloaded using the command line in Ubuntu (or Windows/Mac) using the command sudo pip install. An [example](https://askubuntu.com/questions/95037/what-is-the-best-way-to-install-python-packages) of using pip to install packages is shown in the link. 
