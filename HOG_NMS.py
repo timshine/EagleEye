@@ -5,7 +5,6 @@
 from imutils.object_detection import non_max_suppression
 from imutils import paths
 from color_detection import detect_red
-from PIL import Image
 import numpy as np
 import argparse
 import imutils
