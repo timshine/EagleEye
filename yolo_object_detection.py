@@ -17,24 +17,34 @@ import time
 from queue import Queue
 from urllib.request import urlopen
 
+ap = argparse.ArgumentParser()
+ap.add_argument("-g", "--use-gopro", type=bool, default=0,
+	help="boolean indicating if GoPro should be used")
+ap.add_argument("-u", "--use-gpu", type=bool, default=0,
+	help="boolean indicating if CUDA GPU should be used")
+args = vars(ap.parse_args())
+
 outputFrame = None
 lock = threading.Lock()
 
 app = Flask(__name__)
-urlopen("http://10.5.5.9/gp/gpControl/execute?p1=gpStream&a1=proto_v2&c1=restart").read()
-time.sleep(2.0)
 
-vs  = VideoStream('udp://10.5.5.100:8554').start()
-time.sleep(2.0)
+if args["use_gopro"]:
+    print("[INFO] Trying to use stream from GoPro")
+    urlopen("http://10.5.5.9/gp/gpControl/execute?p1=gpStream&a1=proto_v2&c1=restart").read()
+    time.sleep(2.0)
+    vs = VideoStream('udp://10.5.5.100:8554').start()
+else:
+    vs = VideoStream(src=0).start()
+    time.sleep(2.0)
 
 @app.route("/")
 def original():
     # Return the template
     return render_template("index.html")
 
-def yolo_stream(outputFrame, lock):
-	global vs
-    #, outputFrame, lock
+def yolo_stream():
+	global vs, outputFrame, lock
 	# load the COCO class labels our YOLO model was trained on
 	labelsPath = os.path.sep.join(["yolo-coco", "coco.names"])
 	LABELS = open(labelsPath).read().strip().split("\n")
@@ -53,11 +63,11 @@ def yolo_stream(outputFrame, lock):
 	net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
 
 	# check if we are going to use GPU
-	#if args["use_gpu"]:
-		# set CUDA as the preferable backend and target
-	print("[INFO] setting preferable backend and target to CUDA...")
-	net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
-	net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
+	if args["use_gpu"]:
+		 #set CUDA as the preferable backend and target
+	     print("[INFO] setting preferable backend and target to CUDA...")
+	     net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
+	     net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
 
 	# determine only the *output* layer names that we need from YOLO
 	ln = net.getLayerNames()
@@ -145,8 +155,8 @@ def yolo_stream(outputFrame, lock):
 		with lock:
 			outputFrame = frame.copy()
 
-def generate(outputFrame, lock):
-	#global outputFrame, lock
+def generate():
+	global outputFrame, lock
 
 	while True:
 		with lock:
