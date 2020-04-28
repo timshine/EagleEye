@@ -4,6 +4,8 @@
 
 from imutils.object_detection import non_max_suppression
 from imutils import paths
+from color_detection import detect_red
+from PIL import Image
 import numpy as np
 import argparse
 import imutils
@@ -55,7 +57,12 @@ def read_video_stream():
 
             # draw the final bounding boxes
             for (xA, yA, xB, yB) in pick:
-                cv2.rectangle(frame, (xA, yA), (xB, yB), (255, 255, 255), 2)
+                im = frame[yA:yB,xA:xB]
+                #print((xA, yA, xB, yB))
+                if detect_red(im, .1):
+                    cv2.rectangle(frame, (xA, yA), (xB, yB), (0, 0, 255), 2)
+                else:
+                    cv2.rectangle(frame, (xA, yA), (xB, yB), (0, 0, 0), 2)
 
             #aquire lock, set the output frame
             with lock:

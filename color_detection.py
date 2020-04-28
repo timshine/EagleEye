@@ -5,8 +5,9 @@ def detect_red(image, percent_red_required):
     """Detects the percentage red within a frame. Takes in numpy array or image and the percentage
     of red required to classify as enemy (percent given as a decimal)"""
     # Read in image
-    img = cv2.imread(image)
-    
+    #img = cv2.imread(image)                 #Used if this is an image
+    img = image
+
     if image is not None:
         size = img.size
         # converting from BGR to HSV color space
