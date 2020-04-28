@@ -77,15 +77,16 @@ def video_feed():
     global outputFrame, lock
 	# return the response generated along with the specific media
 	# type (mime type)
-    return Response(generate(outputFrame, lock),
+    return Response(yolo_stream(),
 		mimetype = "multipart/x-mixed-replace; boundary=frame")
 
 if __name__=='__main__':
     # start a thread that will perform motion detection
     # t1 = Thread(target = read_video_stream)
     # t1.start()
-    t = Thread(target=yolo_stream, args=(outputFrame,lock))
-    t.daemon = True
-    t.start()
+    #t = Thread(target=yolo_stream, args=(outputFrame,lock))
+    #t.daemon = True
+    #t.start()
     # start flask app
-    app.run(host='0.0.0.0', port='8000', debug=True, threaded=True, use_reloader=False)
+    #app.run(host='0.0.0.0', port='8000', debug=True, threaded=True, use_reloader=False
+    app.run(host='0.0.0.0', port='8000', debug=True, threaded=True)

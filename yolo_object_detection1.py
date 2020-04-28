@@ -29,11 +29,9 @@ lock = threading.Lock()
 
 app = Flask(__name__)
 
-"""
 if args["use_gopro"] == 0:
     #just getting video from webcam
     vs = VideoStream(src=0).start()
-    #vs = cv2.VideoCaputre(0)
     time.sleep(2.0)
 elif args["use_gopro"] == 1:
     #using stream from gopro
@@ -45,7 +43,7 @@ else:
     #using steam from DJI
     #mike add your code here
     print("[INFO] Trying to use stream from DJI")
-"""
+
 
 @app.route("/")
 def original():
@@ -53,13 +51,7 @@ def original():
     return render_template("index.html")
 
 def yolo_stream():
-	#global vs, outputFrame, lock
-	global outputFrame, lock
-	cv2.startWindowThread()
-	#vs = VideoStream(src=0).start()
-	urlopen("http://10.5.5.9/gp/gpControl/execute?p1=gpStream&a1=proto_v2&c1=restart").read()
-	time.sleep(2.0)
-	vs = VideoStream('udp://10.5.5.100:8554').start()
+	global vs, outputFrame, lock
 	# load the COCO class labels our YOLO model was trained on
 	labelsPath = os.path.sep.join(["yolo-coco", "coco.names"])
 	LABELS = open(labelsPath).read().strip().split("\n")
@@ -78,11 +70,11 @@ def yolo_stream():
 	net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
 
 	# check if we are going to use GPU
-	#if args["use_gpu"]:
+	if args["use_gpu"]:
 		 #set CUDA as the preferable backend and target
-	print("[INFO] setting preferable backend and target to CUDA...")
-	net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
-	net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
+	     print("[INFO] setting preferable backend and target to CUDA...")
+	     net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
+	     net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
 
 	# determine only the *output* layer names that we need from YOLO
 	ln = net.getLayerNames()
@@ -171,16 +163,6 @@ def yolo_stream():
 					cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 		with lock:
 			outputFrame = frame.copy()
-			if outputFrame is None:
-				continue
-			
-			(flag, encodedImage) = cv2.imencode(".jpg", outputFrame)
-			if not flag:
-				continue
-
-	
-		yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +	bytearray(encodedImage) + b'\r\n')
-	vs.stop()
 
 def generate():
 	global outputFrame, lock
@@ -205,7 +187,7 @@ def generate():
 def video_feed():
     # return the response generated along with the specific media
     # type (mime type)
-    return Response(yolo_stream(),
+    return Response(generate(),
         mimetype = "multipart/x-mixed-replace; boundary=frame")
 
 @app.route("/live_stream_video.html", methods=['POST', 'GET'])
@@ -254,11 +236,11 @@ def update_stats():
 
 if __name__=='__main__':
     # start a thread that will perform motion detection
-    #t = Thread(target=yolo_stream)
-    #t.daemon = True
-    #t.start()
+    t = Thread(target=yolo_stream)
+    t.daemon = True
+    t.start()
 
     # start flask app
     app.run(host='0.0.0.0', port='8000', debug=True, threaded=True, use_reloader=False)
 
-
+vs.stop()
