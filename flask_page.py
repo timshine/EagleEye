@@ -4,7 +4,7 @@ video. It will also offer button for user control"""
 # Import necessary packages to open flask page
 import os
 from HOG_NMS import read_video_stream
-from yolo_object_detection import yolo_stream, generate
+from yolo_object_detection import yolo_stream
 from flask import Response, Flask, render_template, request, url_for, flash
 from urllib.request import urlopen
 import threading
@@ -74,7 +74,6 @@ def original():
 # Used to send video stream from NMS to live_stream_video.html
 @app.route("/video_feed")
 def video_feed():
-    global outputFrame, lock
 	# return the response generated along with the specific media
 	# type (mime type)
     return Response(yolo_stream(),

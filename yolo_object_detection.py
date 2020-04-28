@@ -56,10 +56,10 @@ def yolo_stream():
 	#global vs, outputFrame, lock
 	global outputFrame, lock
 	cv2.startWindowThread()
-	#vs = VideoStream(src=0).start()
-	urlopen("http://10.5.5.9/gp/gpControl/execute?p1=gpStream&a1=proto_v2&c1=restart").read()
-	time.sleep(2.0)
-	vs = VideoStream('udp://10.5.5.100:8554').start()
+	vs = VideoStream(src=0).start()
+	# urlopen("http://10.5.5.9/gp/gpControl/execute?p1=gpStream&a1=proto_v2&c1=restart").read()
+	# time.sleep(2.0)
+	# vs = VideoStream('udp://10.5.5.100:8554').start()
 	# load the COCO class labels our YOLO model was trained on
 	labelsPath = os.path.sep.join(["yolo-coco", "coco.names"])
 	LABELS = open(labelsPath).read().strip().split("\n")
