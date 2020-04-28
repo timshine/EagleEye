@@ -11,6 +11,7 @@ import numpy as np
 import argparse
 import threading
 from threading import Thread
+from color_detection import detect_red
 import cv2
 import os
 import time
@@ -56,7 +57,8 @@ def yolo_stream():
 	#global vs, outputFrame, lock
 	global outputFrame, lock
 	cv2.startWindowThread()
-	vs = VideoStream(src=0).start()
+	#vs = VideoStream(src=0).start()
+	vs = cv2.VideoCapture(0)
 	# urlopen("http://10.5.5.9/gp/gpControl/execute?p1=gpStream&a1=proto_v2&c1=restart").read()
 	# time.sleep(2.0)
 	# vs = VideoStream('udp://10.5.5.100:8554').start()
@@ -96,7 +98,7 @@ def yolo_stream():
 
 	# loop over frames from the video file stream
 	while True:
-		frame = vs.read()
+		ret,frame = vs.read()
 
 		# if the frame dimensions are empty, grab them
 		if W is None or H is None:
@@ -163,12 +165,24 @@ def yolo_stream():
 				# draw a bounding box rectangle and label on the frame
 				if LABELS[classIDs[i]]=="person":
 					color = [int(c) for c in COLORS[classIDs[i]]]
-					cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
+					im = frame[y:(y+h),x:(x+w)]
+					percent_red = detect_red(im)
+					if percent_red > .4:
+						cv2.rectangle(frame, (x, y), (x + w, y + h), (0,0,255), 2)
+						text = "{}: {:.4f}".format("Hostile", percent_red)
+						cv2.putText(frame, text, (x, y - 5),
+						cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), 2)
+					else:
+						cv2.rectangle(frame, (x, y), (x + w, y + h), (0,255,0), 2)
+						text = "{}: {:.4f}".format("Friendly", percent_red)
+						cv2.putText(frame, text, (x, y - 5),
+						cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
+					#cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
 
-					text = "{}: {:.4f}".format(LABELS[classIDs[i]],
-						confidences[i])
-					cv2.putText(frame, text, (x, y - 5),
-					cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+					#text = "{}: {:.4f}".format(LABELS[classIDs[i]],
+					#	confidences[i])
+					#cv2.putText(frame, text, (x, y - 5),
+					#cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 		with lock:
 			outputFrame = frame.copy()
 			if outputFrame is None:

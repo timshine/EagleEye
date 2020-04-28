@@ -1,17 +1,20 @@
 import cv2
 import numpy as np
 
-def detect_red(image, percent_red_required):
+def detect_red(image):
     """Detects the percentage red within a frame. Takes in numpy array or image and the percentage
     of red required to classify as enemy (percent given as a decimal)"""
     # Read in image
     #img = cv2.imread(image)                 #Used if this is an image
     img = image
 
-    if image is not None:
+    if img is not None:
         size = img.size
-        # converting from BGR to HSV color space
-        hsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+      	# converting from BGR to HSV color space
+        try:
+            hsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+        except:
+            return 0
 
         # Range for lower red
         lower_red = np.array([0,120,70])
@@ -30,7 +33,7 @@ def detect_red(image, percent_red_required):
     else:
         percent_red = 0
 
-    return percent_red > percent_red_required
+    return percent_red
 
 
 
