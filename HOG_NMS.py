@@ -51,7 +51,7 @@ def read_video_stream():
             # boxes that are still people
             rects = np.array([[x, y, x + w, y + h] for (x, y, w, h) in rects])
             # Good: pick = non_max_suppression(rects, probs=None, overlapThresh=0.65)
-            pick = non_max_suppression_fast(rects, 0.75)
+            pick = non_max_suppression_fast(rects, 0.65)
 
             # draw the final bounding boxes
             for (xA, yA, xB, yB) in pick:
@@ -133,10 +133,3 @@ def non_max_suppression_fast(boxes, overlapThresh):
 	# return only the bounding boxes thqat were picked using the
 	# integer data type
 	return boxes[pick].astype("int")
-
-# def main():
-    #read_video_stream
-    #os.kill(os.getppid(), signal.SIGHUP)  # closes terminal when script ends 
-
-# if __name__ == "__main__":
-#     main()
