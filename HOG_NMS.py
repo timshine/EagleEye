@@ -13,13 +13,12 @@ import os
 import signal
 import time
 
-
 outputFrame = None
 lock = threading.Lock()
 
 time.sleep(2.0)
 
-def read_video_stream(): 
+def read_video_stream():
     global outputFrame, lock
     # initialize the HOG descriptor/person detector
     hog = cv2.HOGDescriptor()
@@ -39,7 +38,7 @@ def read_video_stream():
         if ret == True:
             frame = imutils.resize(frame, width=min(1080, frame.shape[1]))
             orig = frame.copy()
-    
+
             # detect people in the image
             (rects, weights) = hog.detectMultiScale(frame, winStride=(12, 12),padding=(14, 14), scale=1.05)
 
@@ -67,7 +66,7 @@ def read_video_stream():
             # cv2.imshow('Eye Sight (original)',orig)
             # cv2.imshow('Eye Sight',frame)
             # if cv2.waitKey(1) & 0xFF == ord('q'):
-            #     break 
+            #     break
 
         yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +	bytearray(encodedImage) + b'\r\n')
 
@@ -83,26 +82,26 @@ def non_max_suppression_fast(boxes, overlapThresh):
 	# if there are no boxes, return an empty list
 	if len(boxes) == 0:
 		return []
- 
+
 	# if the bounding boxes integers, convert them to floats --
 	# this is important since we'll be doing a bunch of divisions
 	if boxes.dtype.kind == "i":
 		boxes = boxes.astype("float")
- 
-	# initialize the list of picked indexes	
+
+	# initialize the list of picked indexes
 	pick = []
- 
+
 	# grab the coordinates of the bounding boxes
 	x1 = boxes[:,0]
 	y1 = boxes[:,1]
 	x2 = boxes[:,2]
 	y2 = boxes[:,3]
- 
+
 	# compute the area of the bounding boxes and sort the bounding
 	# boxes by the bottom-right y-coordinate of the bounding box
 	area = (x2 - x1 + 1) * (y2 - y1 + 1)
 	idxs = np.argsort(y2)
- 
+
 	# keep looping while some indexes still remain in the indexes
 	# list
 	while len(idxs) > 0:
@@ -111,7 +110,7 @@ def non_max_suppression_fast(boxes, overlapThresh):
 		last = len(idxs) - 1
 		i = idxs[last]
 		pick.append(i)
- 
+
 		# find the largest (x, y) coordinates for the start of
 		# the bounding box and the smallest (x, y) coordinates
 		# for the end of the bounding box
@@ -119,25 +118,25 @@ def non_max_suppression_fast(boxes, overlapThresh):
 		yy1 = np.maximum(y1[i], y1[idxs[:last]])
 		xx2 = np.minimum(x2[i], x2[idxs[:last]])
 		yy2 = np.minimum(y2[i], y2[idxs[:last]])
- 
+
 		# compute the width and height of the bounding box
 		w = np.maximum(0, xx2 - xx1 + 1)
 		h = np.maximum(0, yy2 - yy1 + 1)
- 
+
 		# compute the ratio of overlap
 		overlap = (w * h) / area[idxs[:last]]
- 
+
 		# delete all indexes from the index list that have
 		idxs = np.delete(idxs, np.concatenate(([last],
 			np.where(overlap > overlapThresh)[0])))
- 
+
 	# return only the bounding boxes thqat were picked using the
 	# integer data type
 	return boxes[pick].astype("int")
 
  # def main():
     #read_video_stream
-    #os.kill(os.getppid(), signal.SIGHUP)  # closes terminal when script ends 
+    #os.kill(os.getppid(), signal.SIGHUP)  # closes terminal when script ends
 
  # if __name__ == "__main__":
  #     main()
