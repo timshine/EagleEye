@@ -12,7 +12,7 @@
 ## GoPro HERO7 Black, HERO5 (incl. Session), HERO4 (incl. Session), HERO+, HERO3+, HERO3, HERO2 w/ WiFi BacPac.
 ##
 ## That's all! When done, press CTRL+C to quit this application.
-##
+## 
 
 import sys
 import socket
@@ -40,7 +40,7 @@ VERBOSE=False
 ## Sends Record command to GoPro Camera, must be in Video mode!
 RECORD=False
 ## Converts GoPro camera live stream via FFMPEG to a local source, must be in Video mode!
-STREAM=True
+STREAM=False
 ##
 ## Saves the feed to a custom location
 SAVE=False
@@ -53,6 +53,7 @@ GOPRO_MAC = 'DEADBEEF0000'
 
 
 def gopro_live():
+	wake_on_lan(GOPRO_MAC)
 	UDP_IP = "10.5.5.9"
 	UDP_PORT = 8554
 	KEEP_ALIVE_PERIOD = 2500
@@ -74,7 +75,6 @@ def gopro_live():
 		## HTTP GETs the URL that tells the GoPro to start streaming.
 		##
 		urlopen("http://10.5.5.9/gp/gpControl/execute?p1=gpStream&a1=proto_v2&c1=restart").read()
-		return
 		if RECORD:
 			urlopen("http://10.5.5.9/gp/gpControl/command/shutter?p=1").read()
 		print("UDP target IP:", UDP_IP)
@@ -102,8 +102,6 @@ def gopro_live():
 		if SAVE == False:
 			if STREAM == True:
 				subprocess.Popen("ffmpeg " + loglevel_verbose + " -fflags nobuffer -f:v mpegts -probesize 8192 -i udp://10.5.5.100:8554 -f mpegts -vcodec copy udp://localhost:10000", shell=True)
-			else:
-				subprocess.Popen("ffplay " + loglevel_verbose + " -fflags nobuffer -f:v mpegts -probesize 8192 udp://10.5.5.100:8554", shell=True)
 		else:
 			if SAVE_FORMAT=="ts":
 				TS_PARAMS = " -acodec copy -vcodec copy "
@@ -139,7 +137,7 @@ def quit_gopro(signal, frame):
 
 def wake_on_lan(macaddress):
 	"""switches on remote computers using WOL. """
-
+	
 	#check macaddress format and try to compensate
 	if len(macaddress) == 12:
 		pass
@@ -151,7 +149,7 @@ def wake_on_lan(macaddress):
 	#Pad the sync stream
 	data = ''.join(['FFFFFFFFFFFF', macaddress * 20])
 	send_data = bytes.fromhex(data)
-
+			
 	# Broadcast to lan
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)

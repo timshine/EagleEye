@@ -11,30 +11,22 @@ import numpy as np
 import argparse
 import threading
 from threading import Thread
-from color_detection import detect_red
 import cv2
 import os
 import time
 from queue import Queue
 from urllib.request import urlopen
-
-ap = argparse.ArgumentParser()
-ap.add_argument("-g", "--use-gopro", type=int, default=0,
-	help="boolean indicating if GoPro should be used")
-ap.add_argument("-u", "--use-gpu", type=bool, default=0,
-	help="boolean indicating if CUDA GPU should be used")
-args = vars(ap.parse_args())
+from color_detection import detect_red
 
 outputFrame = None
 lock = threading.Lock()
 
 app = Flask(__name__)
-
+time.sleep(2.0)
 """
 if args["use_gopro"] == 0:
     #just getting video from webcam
     vs = VideoStream(src=0).start()
-    #vs = cv2.VideoCaputre(0)
     time.sleep(2.0)
 elif args["use_gopro"] == 1:
     #using stream from gopro
@@ -47,58 +39,51 @@ else:
     #mike add your code here
     print("[INFO] Trying to use stream from DJI")
 """
+labelsPath = os.path.sep.join(["yolo-coco", "coco.names"])
+LABELS = open(labelsPath).read().strip().split("\n")
 
-@app.route("/")
-def original():
-    # Return the template
-    return render_template("index.html")
+# initialize a list of colors to represent each possible class label
+np.random.seed(42)
+COLORS = np.random.randint(0, 255, size=(len(LABELS), 3),
+    dtype="uint8")
 
-def yolo_stream():
-	#global vs, outputFrame, lock
-	global outputFrame, lock
-	cv2.startWindowThread()
-	#vs = VideoStream(src=0).start()
-	vs = cv2.VideoCapture(0)
-	# urlopen("http://10.5.5.9/gp/gpControl/execute?p1=gpStream&a1=proto_v2&c1=restart").read()
-	# time.sleep(2.0)
-	# vs = VideoStream('udp://10.5.5.100:8554').start()
+# derive the paths to the YOLO weights and model configuration
+weightsPath = os.path.sep.join(["yolo-coco", "yolov3.weights"])
+configPath = os.path.sep.join(["yolo-coco", "yolov3.cfg"])
+
+# load our YOLO object detector trained on COCO dataset (80 classes)
+print("[INFO] loading YOLO from disk...")
+net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
+
+# check if we are going to use GPU
+#if args["use_gpu"]:
+#set CUDA as the preferable backend and target
+print("[INFO] setting preferable backend and target to CUDA...")
+net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
+net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
+
+# determine only the *output* layer names that we need from YOLO
+ln = net.getLayerNames()
+ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+
+# initialize the width and height of the frames in the video file
+W = None
+H = None
+
+def yolo_stream(camera):
+	global vs, outputFrame, lock, W, H, ln, net
+	#vs = cv2.VideoCapture('udp://10.5.5.100:8554')
+	if(camera == 0):
+		print("[INFO] accessing video stream from webcam...")
+		vs = VideoStream(src=0).start()
+	elif(camera == 1):
+		print("[INFO] accessing video stream from GoPro...")
+		vs = VideoStream('udp://10.5.5.100:8554').start()
 	# load the COCO class labels our YOLO model was trained on
-	labelsPath = os.path.sep.join(["yolo-coco", "coco.names"])
-	LABELS = open(labelsPath).read().strip().split("\n")
-
-	# initialize a list of colors to represent each possible class label
-	np.random.seed(42)
-	COLORS = np.random.randint(0, 255, size=(len(LABELS), 3),
-		dtype="uint8")
-
-	# derive the paths to the YOLO weights and model configuration
-	weightsPath = os.path.sep.join(["yolo-coco", "yolov3.weights"])
-	configPath = os.path.sep.join(["yolo-coco", "yolov3.cfg"])
-
-	# load our YOLO object detector trained on COCO dataset (80 classes)
-	print("[INFO] loading YOLO from disk...")
-	net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
-
-	# check if we are going to use GPU
-	#if args["use_gpu"]:
-		 #set CUDA as the preferable backend and target
-	print("[INFO] setting preferable backend and target to CUDA...")
-	net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
-	net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
-
-	# determine only the *output* layer names that we need from YOLO
-	ln = net.getLayerNames()
-	ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
-
-	# initialize the width and height of the frames in the video file
-	W = None
-	H = None
-
-	print("[INFO] accessing video stream...")
 
 	# loop over frames from the video file stream
 	while True:
-		ret,frame = vs.read()
+		frame = vs.read()
 
 		# if the frame dimensions are empty, grab them
 		if W is None or H is None:
@@ -177,24 +162,8 @@ def yolo_stream():
 						text = "{}: {:.4f}".format("Friendly", percent_red)
 						cv2.putText(frame, text, (x, y - 5),
 						cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
-					#cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
-
-					#text = "{}: {:.4f}".format(LABELS[classIDs[i]],
-					#	confidences[i])
-					#cv2.putText(frame, text, (x, y - 5),
-					#cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 		with lock:
 			outputFrame = frame.copy()
-			if outputFrame is None:
-				continue
-			
-			(flag, encodedImage) = cv2.imencode(".jpg", outputFrame)
-			if not flag:
-				continue
-
-	
-		yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +	bytearray(encodedImage) + b'\r\n')
-	vs.stop()
 
 def generate():
 	global outputFrame, lock
@@ -213,66 +182,3 @@ def generate():
 
 
 		yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +	bytearray(encodedImage) + b'\r\n')
-
-# Used to send video stream from NMS to live_stream_video.html
-@app.route("/video_feed")
-def video_feed():
-    # return the response generated along with the specific media
-    # type (mime type)
-    return Response(yolo_stream(),
-        mimetype = "multipart/x-mixed-replace; boundary=frame")
-
-@app.route("/live_stream_video.html", methods=['POST', 'GET'])
-def buttonClickOnVideo():
-    # Return the template
-    if request.method == 'POST':
-        if request.form['videoButton'] == 'target':
-            output = "Mis-identified"
-        elif request.form['videoButton'] == 'home':
-            output = "Return Home"
-        print(output)
-    return render_template("live_stream_video.html")
-
-@app.route("/about.html")
-def about():
-    # Return the template
-    return render_template("about.html")
-
-@app.route("/index.html")
-def home():
-    # Return the template
-    return render_template("index.html")
-
-@app.route("/l3harris.html")
-def l3harris():
-    # Return the template
-    return render_template("l3harris.html")
-
-@app.route("/sys_stats.html")
-def sys_stats():
-    # Return the template
-    sys_info = sys_information.get_sys_info()
-    cpu_info = sys_information.get_cpu_cores()
-    boot_time = sys_information.get_boot_time()
-    memory_info = sys_information.get_memory_info()
-    return render_template("sys_stats.html", sys_info=sys_info, cpu_info=cpu_info, boot_time = boot_time, memory_info=memory_info)
-
-@app.route("/sys_stats.html", methods=['POST'])
-def update_stats():
-    #updating stats
-    sys_info = sys_information.get_sys_info()
-    cpu_info = sys_information.get_cpu_cores()
-    boot_time = sys_information.get_boot_time()
-    memory_info = sys_information.get_memory_info()
-    return render_template('sys_stats.html', sys_info=sys_info, cpu_info=cpu_info, boot_time=boot_time, memory_info=memory_info)
-
-if __name__=='__main__':
-    # start a thread that will perform motion detection
-    #t = Thread(target=yolo_stream)
-    #t.daemon = True
-    #t.start()
-
-    # start flask app
-    app.run(host='0.0.0.0', port='8000', debug=True, threaded=True, use_reloader=False)
-
-

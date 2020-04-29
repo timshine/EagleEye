@@ -4,9 +4,10 @@ video. It will also offer button for user control"""
 # Import necessary packages to open flask page
 import os
 from HOG_NMS import read_video_stream
-from yolo_object_detection import yolo_stream
+from yolo_object_detection import yolo_stream,generate
 from flask import Response, Flask, render_template, request, url_for, flash
 from urllib.request import urlopen
+from GoProStream import gopro_live
 import threading
 from threading import Thread
 import argparse
@@ -76,16 +77,29 @@ def original():
 def video_feed():
 	# return the response generated along with the specific media
 	# type (mime type)
-    return Response(yolo_stream(),
+    return Response(generate(),
 		mimetype = "multipart/x-mixed-replace; boundary=frame")
 
 if __name__=='__main__':
+	ap = argparse.ArgumentParser()
+	ap.add_argument("-g", "--use-gopro", type=int, default=0,
+		help="boolean indicating if GoPro should be used")
+	ap.add_argument("-u", "--use-gpu", type=bool, default=0,
+		help="boolean indicating if CUDA GPU should be used")
+	args = vars(ap.parse_args())
+
     # start a thread that will perform motion detection
+	if args["use_gopro"] == 1:
+		t = Thread(target=gopro_live)
+		t.daemon = True
+		t.start()
     # t1 = Thread(target = read_video_stream)
     # t1.start()
-    #t = Thread(target=yolo_stream, args=(outputFrame,lock))
-    #t.daemon = True
-    #t.start()
+	t1 = Thread(target=yolo_stream, args=(args["use_gopro"],))
+	t1.daemon = True
+	t1.start()
+
+
     # start flask app
     #app.run(host='0.0.0.0', port='8000', debug=True, threaded=True, use_reloader=False
-    app.run(host='0.0.0.0', port='8000', debug=True, threaded=True)
+	app.run(host='0.0.0.0', port='8000', debug=True, threaded=True, use_reloader=False)
