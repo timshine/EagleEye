@@ -35,9 +35,9 @@ elif args["use_gopro"] == 1:
     time.sleep(2.0)
     vs = VideoStream('udp://10.5.5.100:8554').start()
 else:
-    #using steam from DJI
-    #mike add your code here
+    #using stream from DJI
     print("[INFO] Trying to use stream from DJI")
+	vs = VideoStream('rtmp://192/168.1.20/live360p/drone').start()
 """
 labelsPath = os.path.sep.join(["yolo-coco", "coco.names"])
 LABELS = open(labelsPath).read().strip().split("\n")
