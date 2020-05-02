@@ -76,6 +76,7 @@ def yolo_stream(camera):
 	if(camera == 0):
 		print("[INFO] accessing video stream from webcam...")
 		vs = VideoStream(src=0).start()
+		#vs = VideoStream(src='/home/ndsoc/Videos/1080p60fps.mp4').start()
 	elif(camera == 1):
 		print("[INFO] accessing video stream from GoPro...")
 		vs = VideoStream('udp://10.5.5.100:8554').start()
@@ -152,7 +153,7 @@ def yolo_stream(camera):
 					color = [int(c) for c in COLORS[classIDs[i]]]
 					im = frame[y:(y+h),x:(x+w)]
 					percent_red = detect_red(im)
-					if percent_red > .4:
+					if percent_red > .3:
 						cv2.rectangle(frame, (x, y), (x + w, y + h), (0,0,255), 2)
 						text = "{}: {:.4f}".format("Hostile", percent_red)
 						cv2.putText(frame, text, (x, y - 5),

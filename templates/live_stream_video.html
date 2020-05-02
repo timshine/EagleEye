@@ -34,7 +34,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="content-wrapper">
                 <div class="two-column-wrapper">
                     <div class="profile-image-wrapper">
@@ -42,16 +41,49 @@
                     </div>
                     <div class="video-content-wrapper">
                         <h1>Live Stream Video</h1>
-                        <form action="/live_stream_video.html" method="post">
-                            <button name="videoButton" class=pushButton value="target" type="submit">Mis-Identified Target</button>
+                        <!--<form action="/live_stream_video.html" method="post">
+                            <button id="MisButton" name="videoButton" class=pushButton value="target" type="submit">Mis-Identified Target</button>
                         </form>
                         <br></br>
                         <form action="/live_stream_video.html" method="post">
                             <button name="videoButton" class=pushButton value="home" type="submit">Return to Base</button>
-                        </form>
+                        </form>-->
+                        <button id="MisButton" name="videoButton" class="pushButton" value="target" type="submit">Mis-Identified Target</button>
+                        <button id="ReturnButton" name="videoButton" class="pushButton" value="home" type="submit">Return to Base</button>
+                        <div id="myModal" class="modal">
+                            <!-- Modal content -->
+                            <div class="modal-content">
+                              <span class="close">&times;</span>
+                              <p>There has been a misclassification!</p>
+                            </div>
+                        </div>
+                        <div id="myModal2" class="modal">
+                            <!-- Modal content -->
+                            <div class="modal-content">
+                              <span class="close">&times;</span>
+                              <p>Returning the drone to base!</p>
+                            </div>
+                        </div> 
                     </div>
                 </div>
-            </div>
+            </div> 
         </div>
+        <script>
+            // Get the modal
+            var modals = document.getElementsByClassName("modal");
+            // Get the button that opens the modal
+            var btns = document.getElementsByClassName("pushButton");
+            var spans=document.getElementsByClassName("close");
+            for(let i=0;i<btns.length;i++){
+                btns[i].onclick = function() {
+                    modals[i].style.display = "block";
+                }
+            }
+            for(let i=0;i<spans.length;i++){
+                spans[i].onclick = function() {
+                    modals[i].style.display = "none";
+                }
+            }
+        </script>      
     </body>
 </html>
