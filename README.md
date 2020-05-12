@@ -29,8 +29,8 @@
 
 ## Running the program with a GoPro
 * Connect your computer to the Wifi of the GoPro. 
-* Pull `GPUAccelerated` from this repository to a local folder on your computer. 
+* Pull `master` from this repository to a local folder on your computer. 
 * Make sure you are in the virutal environment where OpenCV with CUDA support was set up. If the above tutorial was followed this should be done by typing `workon opencv_cuda` 
 * Navigate to the `EagleEye` folder in a terminal and run `python3 yolo_object_detection.py`
-* To access the webpage, go to a web browser, type in `localhost:5000` to the URL and hit enter. The output video after processing will be shown on the screen.
-* To close the host, close out of the terminal to stop the Python program. The webpage at `localhost:5000` should not be outputting video after closing the terminal.
+* To access the webpage, go to a web browser, type in `localhost:8000` to the URL and hit enter. The output video after processing will be shown on the screen.
+* To close the host, close out of the terminal to stop the Python program. The webpage at `localhost:8000` should not be outputting video after closing the terminal.
