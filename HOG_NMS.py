@@ -4,6 +4,7 @@
 
 from imutils.object_detection import non_max_suppression
 from imutils import paths
+from color_detection import detect_red
 import numpy as np
 import argparse
 import imutils
@@ -13,18 +14,18 @@ import os
 import signal
 import time
 
-
 outputFrame = None
 lock = threading.Lock()
 
 time.sleep(2.0)
 
-def read_video_stream(): 
+def read_video_stream():
     global outputFrame, lock
     # initialize the HOG descriptor/person detector
     hog = cv2.HOGDescriptor()
     hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
-
+    #hog.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
+    #hog.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
     cv2.startWindowThread()
 
     # open webcam video stream
@@ -38,7 +39,7 @@ def read_video_stream():
         if ret == True:
             frame = imutils.resize(frame, width=min(1080, frame.shape[1]))
             orig = frame.copy()
-    
+
             # detect people in the image
             (rects, weights) = hog.detectMultiScale(frame, winStride=(12, 12),padding=(14, 14), scale=1.05)
 
@@ -51,11 +52,16 @@ def read_video_stream():
             # boxes that are still people
             rects = np.array([[x, y, x + w, y + h] for (x, y, w, h) in rects])
             # Good: pick = non_max_suppression(rects, probs=None, overlapThresh=0.65)
-            pick = non_max_suppression_fast(rects, 0.75)
+            pick = non_max_suppression_fast(rects, 0.65)
 
             # draw the final bounding boxes
             for (xA, yA, xB, yB) in pick:
-                cv2.rectangle(frame, (xA, yA), (xB, yB), (255, 255, 255), 2)
+                im = frame[yA:yB,xA:xB]
+                #print((xA, yA, xB, yB))
+                if detect_red(im, .1):
+                    cv2.rectangle(frame, (xA, yA), (xB, yB), (0, 0, 255), 2)
+                else:
+                    cv2.rectangle(frame, (xA, yA), (xB, yB), (0, 0, 0), 2)
 
             #aquire lock, set the output frame
             with lock:
@@ -66,7 +72,7 @@ def read_video_stream():
             # cv2.imshow('Eye Sight (original)',orig)
             # cv2.imshow('Eye Sight',frame)
             # if cv2.waitKey(1) & 0xFF == ord('q'):
-            #     break 
+            #     break
 
         yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +	bytearray(encodedImage) + b'\r\n')
 
@@ -82,26 +88,26 @@ def non_max_suppression_fast(boxes, overlapThresh):
 	# if there are no boxes, return an empty list
 	if len(boxes) == 0:
 		return []
- 
+
 	# if the bounding boxes integers, convert them to floats --
 	# this is important since we'll be doing a bunch of divisions
 	if boxes.dtype.kind == "i":
 		boxes = boxes.astype("float")
- 
-	# initialize the list of picked indexes	
+
+	# initialize the list of picked indexes
 	pick = []
- 
+
 	# grab the coordinates of the bounding boxes
 	x1 = boxes[:,0]
 	y1 = boxes[:,1]
 	x2 = boxes[:,2]
 	y2 = boxes[:,3]
- 
+
 	# compute the area of the bounding boxes and sort the bounding
 	# boxes by the bottom-right y-coordinate of the bounding box
 	area = (x2 - x1 + 1) * (y2 - y1 + 1)
 	idxs = np.argsort(y2)
- 
+
 	# keep looping while some indexes still remain in the indexes
 	# list
 	while len(idxs) > 0:
@@ -110,7 +116,7 @@ def non_max_suppression_fast(boxes, overlapThresh):
 		last = len(idxs) - 1
 		i = idxs[last]
 		pick.append(i)
- 
+
 		# find the largest (x, y) coordinates for the start of
 		# the bounding box and the smallest (x, y) coordinates
 		# for the end of the bounding box
@@ -118,25 +124,25 @@ def non_max_suppression_fast(boxes, overlapThresh):
 		yy1 = np.maximum(y1[i], y1[idxs[:last]])
 		xx2 = np.minimum(x2[i], x2[idxs[:last]])
 		yy2 = np.minimum(y2[i], y2[idxs[:last]])
- 
+
 		# compute the width and height of the bounding box
 		w = np.maximum(0, xx2 - xx1 + 1)
 		h = np.maximum(0, yy2 - yy1 + 1)
- 
+
 		# compute the ratio of overlap
 		overlap = (w * h) / area[idxs[:last]]
- 
+
 		# delete all indexes from the index list that have
 		idxs = np.delete(idxs, np.concatenate(([last],
 			np.where(overlap > overlapThresh)[0])))
- 
+
 	# return only the bounding boxes thqat were picked using the
 	# integer data type
 	return boxes[pick].astype("int")
 
-# def main():
+ # def main():
     #read_video_stream
-    #os.kill(os.getppid(), signal.SIGHUP)  # closes terminal when script ends 
+    #os.kill(os.getppid(), signal.SIGHUP)  # closes terminal when script ends
 
-# if __name__ == "__main__":
-#     main()
+ # if __name__ == "__main__":
+ #     main()
